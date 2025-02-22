@@ -20,7 +20,7 @@ jobs:
 
       matrix:
         os: [ ubuntu-latest ] # ubuntu-24.04
-        c_compiler: [ gcc, clang++ ]  # [ gcc, clang ]
+        c_compiler: [ gcc, clang ]  # [ gcc, clang ]
 #        device: [ cpu, cuda ]
         include:
           - os: ubuntu-latest
