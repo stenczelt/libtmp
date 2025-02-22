@@ -111,13 +111,13 @@ jobs:
       # note: we are using c_compiler as the artefact name part, use platform etc. instead
       - name: Pack
         working-directory: instdir
-        run: cmake -E tar cfv ../${{ matrix.c_compiler }}-${{ steps.git.outputs.tag }}.7z --format=7zip .
+        run: cmake -E tar cfv ../${{ matrix.c_compiler }}-${{ steps.git.outputs.tag }}.tar.gz --format=7zip .
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          path: ./${{ matrix.c_compiler }}-${{ steps.git.outputs.tag }}.7z
-          name: ${{ matrix.c_compiler }}-${{ steps.git.outputs.tag }}.7z
+          path: ./${{ matrix.c_compiler }}-${{ steps.git.outputs.tag }}.tar.gz
+          name: ${{ matrix.c_compiler }}-${{ steps.git.outputs.tag }}.tar.gz
 
 #      - name: Test
 #        working-directory: ${{ steps.strings.outputs.build-output-dir }}
