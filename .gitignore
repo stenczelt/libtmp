@@ -1,5 +1,6 @@
 venv3.12
 build/
+install-local/
 
 .idea/**/workspace.xml
 .idea/**/tasks.xml

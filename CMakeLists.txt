@@ -1,25 +1,23 @@
-project(alma)
 cmake_minimum_required(VERSION 3.20)
-
+project(alma)
+set(Upstream_VERSION 3.4.1)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-set(Upstream_VERSION 3.4.1)
-
 include(GenerateExportHeader)
 
-add_library(ClimbingStats SHARED climbingstats.cpp)
-generate_export_header(ClimbingStats)
-set_property(TARGET ClimbingStats PROPERTY VERSION ${Upstream_VERSION})
-set_property(TARGET ClimbingStats PROPERTY SOVERSION 3)
-set_property(TARGET ClimbingStats PROPERTY
-        INTERFACE_ClimbingStats_MAJOR_VERSION 3)
-set_property(TARGET ClimbingStats APPEND PROPERTY
-        COMPATIBLE_INTERFACE_STRING ClimbingStats_MAJOR_VERSION
+add_library(alma SHARED climbingstats.cpp)
+generate_export_header(alma)
+set_property(TARGET alma PROPERTY VERSION ${Upstream_VERSION})
+set_property(TARGET alma PROPERTY SOVERSION 3)
+set_property(TARGET alma PROPERTY
+        INTERFACE_alma_MAJOR_VERSION 3)
+set_property(TARGET alma APPEND PROPERTY
+        COMPATIBLE_INTERFACE_STRING alma_MAJOR_VERSION
 )
 
-install(TARGETS ClimbingStats EXPORT ClimbingStatsTargets
+install(TARGETS alma EXPORT almaTargets
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin
@@ -37,24 +35,24 @@ install(
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/ClimbingStats/ClimbingStatsConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/alma/almaConfigVersion.cmake"
         VERSION ${Upstream_VERSION}
         COMPATIBILITY AnyNewerVersion
 )
 
-export(EXPORT ClimbingStatsTargets
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/ClimbingStats/ClimbingStatsTargets.cmake"
+export(EXPORT almaTargets
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/alma/almaTargets.cmake"
         NAMESPACE Upstream::
 )
-configure_file(cmake/ClimbingStatsConfig.cmake
-        "${CMAKE_CURRENT_BINARY_DIR}/ClimbingStats/ClimbingStatsConfig.cmake"
+configure_file(cmake/almaConfig.cmake
+        "${CMAKE_CURRENT_BINARY_DIR}/alma/almaConfig.cmake"
         COPYONLY
 )
 
-set(ConfigPackageLocation lib/cmake/ClimbingStats)
-install(EXPORT ClimbingStatsTargets
+set(ConfigPackageLocation lib/cmake/alma)
+install(EXPORT almaTargets
         FILE
-        ClimbingStatsTargets.cmake
+        almaTargets.cmake
         NAMESPACE
         Upstream::
         DESTINATION
@@ -62,8 +60,8 @@ install(EXPORT ClimbingStatsTargets
 )
 install(
         FILES
-        cmake/ClimbingStatsConfig.cmake
-        "${CMAKE_CURRENT_BINARY_DIR}/ClimbingStats/ClimbingStatsConfigVersion.cmake"
+        cmake/almaConfig.cmake
+        "${CMAKE_CURRENT_BINARY_DIR}/alma/almaConfigVersion.cmake"
         DESTINATION
         ${ConfigPackageLocation}
         COMPONENT
