@@ -5,17 +5,11 @@ set(Upstream_VERSION 3.4.1)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-include(GenerateExportHeader)
-
-add_library(alma SHARED climbingstats.cpp)
-generate_export_header(alma)
+add_library(alma SHARED alma.cpp)
 set_property(TARGET alma PROPERTY VERSION ${Upstream_VERSION})
 set_property(TARGET alma PROPERTY SOVERSION 3)
-set_property(TARGET alma PROPERTY
-        INTERFACE_alma_MAJOR_VERSION 3)
-set_property(TARGET alma APPEND PROPERTY
-        COMPATIBLE_INTERFACE_STRING alma_MAJOR_VERSION
-)
+set_property(TARGET alma PROPERTY INTERFACE_alma_MAJOR_VERSION 3)
+set_property(TARGET alma APPEND PROPERTY COMPATIBLE_INTERFACE_STRING alma_MAJOR_VERSION)
 
 install(TARGETS alma EXPORT almaTargets
         LIBRARY DESTINATION lib
@@ -24,13 +18,9 @@ install(TARGETS alma EXPORT almaTargets
         INCLUDES DESTINATION include
 )
 install(
-        FILES
-        climbingstats.h
-        "${CMAKE_CURRENT_BINARY_DIR}/climbingstats_export.h"
-        DESTINATION
-        include
-        COMPONENT
-        Devel
+        FILES alma.h
+        DESTINATION include
+        COMPONENT Devel
 )
 
 include(CMakePackageConfigHelpers)

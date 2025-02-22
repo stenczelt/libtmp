@@ -2,7 +2,7 @@
 // Created by Tamas K Stenczel on 22/02/2025.
 //
 
-#include "climbingstats.h"
+#include "alma.h"
 
 #include <cstdio>
 
