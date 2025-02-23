@@ -15,22 +15,59 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, macos-14 ]
-        arch: [ x86_64 ] # Dropped arm64 for Ubuntu
+        arch: [ x86_64 ] # Only Ubuntu x86_64, MacOS ARM64
         cuda: [ cpu ] # Default for macOS
-        libtorch_version: [ "2.6.0" ]
+        libtorch_version: [ "2.6.0", "2.4.1" ]
         include:
+          # Libtorch 2.6.0
           - os: ubuntu-22.04
             arch: x86_64
             cuda: cuda11
+            cuda_version: "11.8.0"
             libtorch_version: "2.6.0"
           - os: ubuntu-22.04
             arch: x86_64
             cuda: cuda12
+            cuda_version: "12.4.0"
             libtorch_version: "2.6.0"
+          - os: ubuntu-22.04
+            arch: x86_64
+            cuda: cuda12
+            cuda_version: "12.6.0"
+            libtorch_version: "2.6.0"
+
+          # Libtorch 2.4.1
+          - os: ubuntu-22.04
+            arch: x86_64
+            cuda: cuda11
+            cuda_version: "11.8.0"
+            libtorch_version: "2.4.1"
+          - os: ubuntu-22.04
+            arch: x86_64
+            cuda: cuda12
+            cuda_version: "12.1.0"
+            libtorch_version: "2.4.1"
+          - os: ubuntu-22.04
+            arch: x86_64
+            cuda: cuda12
+            cuda_version: "12.4.0"
+            libtorch_version: "2.4.1"
+
+          # MacOS arm64 (only CPU)
           - os: macos-14
             arch: arm64
             cuda: cpu
             libtorch_version: "2.6.0"
+          - os: macos-14
+            arch: arm64
+            cuda: cpu
+            libtorch_version: "2.4.1"
+
+        exclude:
+          - os: macos-14
+            arch: x86_64 # No MacOS x86_64 builds
+
+
 
 
     steps:
@@ -73,7 +110,7 @@ jobs:
           echo "Downloading libtorch from $LIBTORCH_URL"
           wget -O libtorch.zip "$LIBTORCH_URL"
           unzip libtorch.zip
-      
+
 
       - name: Build shared library
         run: |
