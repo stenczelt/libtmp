@@ -64,24 +64,22 @@ jobs:
 
       - name: Set up build environment
         run: |
-          echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
-          echo "CUDA=${{ matrix.cuda }}" >> $GITHUB_ENV
           echo "LIBTORCH_VERSION=${{ matrix.libtorch_version }}" >> $GITHUB_ENV
 
       - name: Construct filename
         run: |
           # platofrm
           if [[ "${{ matrix.os }}" == "macos-14" ]]; then
-            PLATFORM = "macos-arm64"
+            PLATFORM="macos-arm64"
           else
-            PLATFORM = "x86_64"
+            PLATFORM="x86_64"
           fi
           
           # modifier: for the end of the filename, note includes `-` at the start
           if [[ "${{ matrix.libtorch_cuda }}" == "cpu" ]]; then
-            MODIFIER = ""
+            MODIFIER=""
           else
-            MODIFIER = "-${{ matrix.libtorch_cuda }}"
+            MODIFIER="-${{ matrix.libtorch_cuda }}"
           fi
           
           # version: this should come from the package
