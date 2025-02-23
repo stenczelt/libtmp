@@ -57,9 +57,23 @@ jobs:
 
       - name: Download libtorch
         run: |
-          LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${{ matrix.cuda }}.zip"
+          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+            if [[ "${{ matrix.cuda }}" == "cuda11" ]]; then
+              LIBTORCH_CUDA="cu118"
+            elif [[ "${{ matrix.cuda }}" == "cuda12" ]]; then
+              LIBTORCH_CUDA="cu121"
+            else
+              LIBTORCH_CUDA="cpu"
+            fi
+            LIBTORCH_URL="https://download.pytorch.org/libtorch/${LIBTORCH_CUDA}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${LIBTORCH_CUDA}.zip"
+          elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
+            LIBTORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${{ matrix.libtorch_version }}.zip"
+          fi
+
+          echo "Downloading libtorch from $LIBTORCH_URL"
           wget -O libtorch.zip "$LIBTORCH_URL"
           unzip libtorch.zip
+      
 
       - name: Build shared library
         run: |
