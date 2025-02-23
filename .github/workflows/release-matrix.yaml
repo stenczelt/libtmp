@@ -1,0 +1,79 @@
+name: Build Libtorch Shared Library
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-22.04, macos-14 ]
+        arch: [ x86_64, arm64 ]
+        cuda: [ cpu ] # Default for macOS
+        libtorch_version: [ "2.6.0" ] # Example: Add more versions like ["2.6.0", "2.5.0"]
+        include:
+          - os: ubuntu-22.04
+            arch: x86_64
+            cuda: cuda11
+          - os: ubuntu-22.04
+            arch: x86_64
+            cuda: cuda12
+        exclude:
+          - os: macos-14
+            arch: x86_64 # Avoid redundant macOS x86_64 build
+          - os: macos-14
+            cuda: cuda11
+          - os: macos-14
+            cuda: cuda12
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up build environment
+        run: |
+          echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "CUDA=${{ matrix.cuda }}" >> $GITHUB_ENV
+          echo "LIBTORCH_VERSION=${{ matrix.libtorch_version }}" >> $GITHUB_ENV
+
+      - name: Construct filename
+        run: |
+          FILENAME="mylib-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.cuda }}-libtorch${{ matrix.libtorch_version }}.tar.gz"
+          echo "TAR_FILENAME=$FILENAME" >> $GITHUB_ENV
+          echo "Generated filename: $FILENAME"
+
+      - name: Install dependencies
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+            sudo apt update && sudo apt install -y build-essential cmake
+          fi
+
+      - name: Download libtorch
+        run: |
+          LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${{ matrix.cuda }}.zip"
+          wget -O libtorch.zip "$LIBTORCH_URL"
+          unzip libtorch.zip
+
+      - name: Build shared library
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_PREFIX_PATH=$(pwd)/../libtorch ..
+          make -j$(nproc)
+
+      - name: Package artifacts
+        run: |
+          tar -czvf ${{ env.TAR_FILENAME }} -C build .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.TAR_FILENAME }}
+          path: ${{ env.TAR_FILENAME }}
