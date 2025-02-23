@@ -151,24 +151,27 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          path: release
-      #          path: release-with-dirs
+          path: release-with-dirs
 
-      - name: show content
+      - name: show content (pre-cleanup)
         run: |
           tree .
 
-      #      - name: Fixup artifacts
-      #        run: |
-      #          mkdir release
-      #          mv release-with-dirs/*/* release/
+      - name: Fixup artifacts
+        run: |
+          mkdir release
+          mv release-with-dirs/*/* release/
+
+      - name: show content (post-cleanup)
+        run: |
+          tree .
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ needs.build.outputs.tag }}
+          tag_name: ${{ github.ref_name }}
           files: release/*
           draft: false
           prerelease: false
