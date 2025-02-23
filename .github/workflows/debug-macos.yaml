@@ -19,3 +19,9 @@ jobs:
       - name: gfortran version
         run: gfortran-13 --version
 
+      - name: find clang
+        run: which clang
+
+      - name: clang version
+        run: clang --version
+
