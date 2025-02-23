@@ -16,56 +16,57 @@ jobs:
       matrix:
         os: [ ubuntu-22.04, macos-14 ]
         arch: [ x86_64 ] # Only Ubuntu x86_64, MacOS ARM64
-        cuda: [ cpu ] # Default for macOS
+        libtorch_cuda: [ cpu ] # Default for macOS
         libtorch_version: [ "2.6.0", "2.4.1" ]
         include:
           # Libtorch 2.6.0
           - os: ubuntu-22.04
             arch: x86_64
-            cuda: cuda11
+            libtorch_cuda: cu118
             cuda_version: "11.8.0"
             libtorch_version: "2.6.0"
           - os: ubuntu-22.04
             arch: x86_64
-            cuda: cuda12
+            libtorch_cuda: cu124
             cuda_version: "12.4.0"
             libtorch_version: "2.6.0"
           - os: ubuntu-22.04
             arch: x86_64
-            cuda: cuda12
+            libtorch_cuda: cu126
             cuda_version: "12.6.0"
             libtorch_version: "2.6.0"
 
           # Libtorch 2.4.1
           - os: ubuntu-22.04
             arch: x86_64
-            cuda: cuda11
+            libtorch_cuda: cu118
             cuda_version: "11.8.0"
             libtorch_version: "2.4.1"
           - os: ubuntu-22.04
             arch: x86_64
-            cuda: cuda12
+            libtorch_cuda: cu121
             cuda_version: "12.1.0"
             libtorch_version: "2.4.1"
           - os: ubuntu-22.04
             arch: x86_64
-            cuda: cuda12
+            libtorch_cuda: cu124
             cuda_version: "12.4.0"
             libtorch_version: "2.4.1"
 
           # MacOS arm64 (only CPU)
           - os: macos-14
             arch: arm64
-            cuda: cpu
+            libtorch_cuda: cpu
             libtorch_version: "2.6.0"
           - os: macos-14
             arch: arm64
-            cuda: cpu
+            libtorch_cuda: cpu
             libtorch_version: "2.4.1"
 
         exclude:
           - os: macos-14
             arch: x86_64 # No MacOS x86_64 builds
+
 
 
 
@@ -95,14 +96,7 @@ jobs:
       - name: Download libtorch
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-            if [[ "${{ matrix.cuda }}" == "cuda11" ]]; then
-              LIBTORCH_CUDA="cu118"
-            elif [[ "${{ matrix.cuda }}" == "cuda12" ]]; then
-              LIBTORCH_CUDA="cu126"
-            else
-              LIBTORCH_CUDA="cpu"
-            fi
-            LIBTORCH_URL="https://download.pytorch.org/libtorch/${LIBTORCH_CUDA}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${LIBTORCH_CUDA}.zip"
+            LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.libtorch_cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${LIBTORCH_CUDA}.zip"
           elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
             LIBTORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${{ matrix.libtorch_version }}.zip"
           fi
