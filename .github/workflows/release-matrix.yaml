@@ -15,61 +15,48 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, macos-14 ]
-        arch: [ x86_64 ] # Only Ubuntu x86_64, MacOS ARM64
         libtorch_cuda: [ cpu ] # Default for macOS
         libtorch_version: [ "2.6.0", "2.4.1" ]
         include:
           # Libtorch 2.6.0
           - os: ubuntu-22.04
-            arch: x86_64
             libtorch_cuda: cu118
             cuda_version: "11.8.0"
             libtorch_version: "2.6.0"
           - os: ubuntu-22.04
-            arch: x86_64
             libtorch_cuda: cu124
             cuda_version: "12.4.0"
             libtorch_version: "2.6.0"
           - os: ubuntu-22.04
-            arch: x86_64
             libtorch_cuda: cu126
             cuda_version: "12.6.0"
             libtorch_version: "2.6.0"
 
           # Libtorch 2.4.1
           - os: ubuntu-22.04
-            arch: x86_64
             libtorch_cuda: cu118
             cuda_version: "11.8.0"
             libtorch_version: "2.4.1"
           - os: ubuntu-22.04
-            arch: x86_64
             libtorch_cuda: cu121
             cuda_version: "12.1.0"
             libtorch_version: "2.4.1"
           - os: ubuntu-22.04
-            arch: x86_64
             libtorch_cuda: cu124
             cuda_version: "12.4.0"
             libtorch_version: "2.4.1"
 
           # MacOS arm64 (only CPU)
           - os: macos-14
-            arch: arm64
             libtorch_cuda: cpu
             libtorch_version: "2.6.0"
           - os: macos-14
-            arch: arm64
             libtorch_cuda: cpu
             libtorch_version: "2.4.1"
 
-        exclude:
-          - os: macos-14
-            arch: x86_64 # No MacOS x86_64 builds
-
-
-
-
+#        exclude:
+#          - os: macos-14
+#            arch: x86_64 # No MacOS x86_64 builds
 
     steps:
       - name: Checkout repository
@@ -83,17 +70,29 @@ jobs:
 
       - name: Construct filename
         run: |
-          FILENAME="mylib-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.cuda }}-libtorch${{ matrix.libtorch_version }}.tar.gz"
+          # platofrm
+          if [[ "${{ matrix.os }}" == "macos-14" ]]; then
+            PLATFORM = "macos-arm64"
+          else
+            PLATFORM = "x86_64"
+          fi
+          
+          # modifier: for the end of the filename, note includes `-` at the start
+          if [[ "${{ matrix.libtorch_cuda }}" == "cpu" ]]; then
+            MODIFIER = ""
+          else
+            MODIFIER = "-${{ matrix.libtorch_cuda }}"
+          fi
+          
+          # version: this should come from the package
+          VERSION=25.2.1
+          
+          FILENAME="libmace-${PLATFORM}-${VERSION}-libtorch${{ matrix.libtorch_version }}${MODIFIER}.tar.gz"
           echo "TAR_FILENAME=$FILENAME" >> $GITHUB_ENV
           echo "Generated filename: $FILENAME"
 
-      - name: Install dependencies
-        run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-            sudo apt update && sudo apt install -y build-essential cmake
-          fi
-
       - name: Download libtorch
+        id: libtorch
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
             LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.libtorch_cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${{ matrix.libtorch_cuda }}.zip"
@@ -104,13 +103,16 @@ jobs:
           echo "Downloading libtorch from $LIBTORCH_URL"
           wget -O libtorch.zip "$LIBTORCH_URL"
           unzip libtorch.zip
+          
+          # save path for later steps
+          echo "path=$(realpath libtorch)" >> "$GITHUB_OUTPUT"
 
 
       - name: Build shared library
         run: |
           mkdir -p build
           cd build
-          cmake -DCMAKE_PREFIX_PATH=$(pwd)/../libtorch ..
+          cmake -DCMAKE_PREFIX_PATH=${{ steps.libtorch.outputs.path }} ..
           make -j$(nproc)
 
       - name: Package artifacts
