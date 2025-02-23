@@ -16,7 +16,7 @@ jobs:
     env:
       build_type: Release
       build_dir: build
-      install_dir: build
+      install_dir: install
       c_compiler: gcc
       cpp_compiler: g++
       ftn_compiler: gfortran
@@ -141,3 +141,28 @@ jobs:
         with:
           path: ./${{ env.TAR_FILENAME }}
           name: ${{ env.TAR_FILENAME }}
+  release:
+    if: contains(github.ref, 'tags/v')
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+#          path: release-with-dirs
+
+#      - name: Fixup artifacts
+#        run: |
+#          mkdir release
+#          mv release-with-dirs/*/* release/
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.tag }}
+          files: release/*
+          draft: false
+          prerelease: false
