@@ -15,25 +15,23 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, macos-14 ]
-        arch: [ x86_64, arm64 ]
+        arch: [ x86_64 ] # Dropped arm64 for Ubuntu
         cuda: [ cpu ] # Default for macOS
-        libtorch_version: [ "2.6.0" ] # Example: Add more versions like ["2.6.0", "2.5.0"]
+        libtorch_version: [ "2.6.0" ]
         include:
           - os: ubuntu-22.04
             arch: x86_64
             cuda: cuda11
-            libtorch_version: 2.6.0
+            libtorch_version: "2.6.0"
           - os: ubuntu-22.04
             arch: x86_64
             cuda: cuda12
-            libtorch_version: 2.6.0
-        exclude:
+            libtorch_version: "2.6.0"
           - os: macos-14
-            arch: x86_64 # Avoid redundant macOS x86_64 build
-          - os: macos-14
-            cuda: cuda11
-          - os: macos-14
-            cuda: cuda12
+            arch: arm64
+            cuda: cpu
+            libtorch_version: "2.6.0"
+
 
     steps:
       - name: Checkout repository
@@ -63,7 +61,7 @@ jobs:
             if [[ "${{ matrix.cuda }}" == "cuda11" ]]; then
               LIBTORCH_CUDA="cu118"
             elif [[ "${{ matrix.cuda }}" == "cuda12" ]]; then
-              LIBTORCH_CUDA="cu121"
+              LIBTORCH_CUDA="cu126"
             else
               LIBTORCH_CUDA="cpu"
             fi
