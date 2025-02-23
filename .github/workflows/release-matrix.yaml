@@ -96,7 +96,7 @@ jobs:
       - name: Download libtorch
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-            LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.libtorch_cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${LIBTORCH_CUDA}.zip"
+            LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.libtorch_cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${{ matrix.libtorch_cuda }}.zip"
           elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
             LIBTORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${{ matrix.libtorch_version }}.zip"
           fi
