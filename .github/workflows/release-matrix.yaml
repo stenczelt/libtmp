@@ -11,6 +11,16 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+
+    # non-parametrized settings
+    env:
+      build_type: Release
+      build_dir: build
+      install_dir: build
+      c_compiler: gcc
+      cpp_compiler: g++
+      ftn_compiler: gfortran
+
     strategy:
       fail-fast: false
       matrix:
@@ -54,9 +64,9 @@ jobs:
             libtorch_cuda: cpu
             libtorch_version: "2.4.1"
 
-#        exclude:
-#          - os: macos-14
-#            arch: x86_64 # No MacOS x86_64 builds
+    #        exclude:
+    #          - os: macos-14
+    #            arch: x86_64 # No MacOS x86_64 builds
 
     steps:
       - name: Checkout repository
@@ -69,7 +79,7 @@ jobs:
       - name: Construct filename
         run: |
           # platofrm
-          if [[ "${{ matrix.os }}" == "macos-14" ]]; then
+          if [[ "${{ matrix.os }}" == macos* ]]; then
             PLATFORM="macos-arm64"
           else
             PLATFORM="x86_64"
@@ -92,9 +102,9 @@ jobs:
       - name: Download libtorch
         id: libtorch
         run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+          if [[ "${{ matrix.os }}" == ubuntu* ]]; then
             LIBTORCH_URL="https://download.pytorch.org/libtorch/${{ matrix.libtorch_cuda }}/libtorch-cxx11-abi-shared-with-deps-${{ matrix.libtorch_version }}%2B${{ matrix.libtorch_cuda }}.zip"
-          elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
+          elif [[ "${{ matrix.os }}" == macos* ]]; then
             LIBTORCH_URL="https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${{ matrix.libtorch_version }}.zip"
           fi
 
@@ -105,20 +115,29 @@ jobs:
           # save path for later steps
           echo "path=$(realpath libtorch)" >> "$GITHUB_OUTPUT"
 
+      - name: Configure CMake
+        run: >
+          cmake -B ${{ env.build_dir }}
+          -DCMAKE_CXX_COMPILER=${{ env.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ env.c_compiler }}
+          -DCMAKE_FORTRAN_COMPILER=${{ env.ftn_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ env.build_type }}
+          -DCMAKE_PREFIX_PATH=${{ steps.libtorch.outputs.path }}
+          -S ${{ github.workspace }}
 
-      - name: Build shared library
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_PREFIX_PATH=${{ steps.libtorch.outputs.path }} ..
-          make -j$(nproc)
+      - name: Build
+        run: cmake --build ${{ env.build_dir }} --config ${{ env.build_type }}
 
-      - name: Package artifacts
-        run: |
-          tar -czvf ${{ env.TAR_FILENAME }} -C build .
+      - name: Install
+        run: cmake --install ${{ env.build_dir }} --prefix ${{ env.install_dir }} --strip
+
+      - name: Pack
+        working-directory: ${{ env.install_dir }}
+        run: cmake -E tar cvzf ../${{ env.TAR_FILENAME }} .
+
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
+          path: ./${{ env.TAR_FILENAME }}
           name: ${{ env.TAR_FILENAME }}
-          path: ${{ env.TAR_FILENAME }}

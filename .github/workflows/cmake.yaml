@@ -87,7 +87,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_FORTRAN_COMPILER=${{ matrix.ftn_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_BUILD_TYPE=${{ env.build_type }}
           -DCMAKE_PREFIX_PATH=${{ steps.libtorch.outputs.path }}
           ${{ steps.libtorch.outputs.cmake_flags }}
           -S ${{ github.workspace }}
