@@ -144,7 +144,7 @@ jobs:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
     permissions:
-      packages: write
+      contents: write
     needs: build
 
     steps:
@@ -154,13 +154,16 @@ jobs:
           path: release
       #          path: release-with-dirs
 
+      - name: show content
+        run: |
+          tree .
+
       #      - name: Fixup artifacts
       #        run: |
       #          mkdir release
       #          mv release-with-dirs/*/* release/
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
