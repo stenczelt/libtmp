@@ -1,0 +1,21 @@
+name: Debug the MacOS runners
+
+on:
+  push:
+    branches:
+      - debug
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: find gfortran
+        run: which gfortran-13
+
+      - name: gfortran version
+        run: gfortran-13 --version
+
